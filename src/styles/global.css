@@ -1,0 +1,72 @@
+/* Design tokens: court green, white and a ball-yellow accent. Mobile-first. */
+:root {
+  --color-bg: #eef3ef;
+  --color-surface: #ffffff;
+  --color-text: #10221a;
+  --color-muted: #5a6b61;
+  --color-border: #d8e2db;
+  --color-primary: #0f6b45;
+  --color-on-primary: #ffffff;
+  --color-accent: #e3f74a;
+  --color-on-accent: #123020;
+  --color-danger: #b3261e;
+
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radius: 12px;
+  --space: 16px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0c1511;
+    --color-surface: #15211b;
+    --color-text: #e6efe9;
+    --color-muted: #9aaba1;
+    --color-border: #26352d;
+    --color-primary: #3fbf86;
+    --color-on-primary: #06120c;
+    --color-accent: #d9f24a;
+    --color-on-accent: #10220f;
+    --color-danger: #ff8a80;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: var(--space);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space);
+}
+
+.muted { color: var(--color-muted); }
