@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from './useAuth'
 
 export default function LoginPage() {
@@ -28,6 +29,10 @@ export default function LoginPage() {
         {busy ? 'Conectando…' : 'Entrar con Google'}
       </button>
       {error && <p className="error" role="alert">{error}</p>}
+      <p className="hint">
+        Al entrar aceptás los <Link to="/terminos">Términos</Link> y la{' '}
+        <Link to="/privacidad">Política de privacidad</Link>.
+      </p>
     </main>
   )
 }

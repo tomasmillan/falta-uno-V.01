@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { useAuth } from '../features/auth/useAuth'
 import LoginPage from '../features/auth/LoginPage'
@@ -9,13 +9,26 @@ import { useProfile } from '../features/profile/useProfile'
 import { CATEGORY_LABELS, type Profile } from '../types/domain'
 import Spinner from '../components/Spinner'
 import HomePage from './HomePage'
+import PrivacyPage from '../features/legal/PrivacyPage'
+import TermsPage from '../features/legal/TermsPage'
+
+const PUBLIC_PATHS = ['/privacidad', '/terminos']
 
 export default function App() {
   const { session, loading: authLoading, signOut } = useAuth()
   const { profile, setProfile, loading: profileLoading, error } = useProfile(session?.user.id)
 
+  const { pathname } = useLocation()
+
   let content: ReactNode
-  if (!isSupabaseConfigured) {
+  if (PUBLIC_PATHS.includes(pathname)) {
+    content = (
+      <Routes>
+        <Route path="/privacidad" element={<PrivacyPage />} />
+        <Route path="/terminos" element={<TermsPage />} />
+      </Routes>
+    )
+  } else if (!isSupabaseConfigured) {
     content = (
       <div className="card" role="status">
         <strong>Falta configurar Supabase.</strong>
@@ -57,6 +70,11 @@ export default function App() {
         {session && profile && <ProfileBadge profile={profile} />}
       </header>
       {content}
+      <footer className="app-footer">
+        <Link to="/privacidad">Privacidad</Link>
+        <span aria-hidden="true">·</span>
+        <Link to="/terminos">Términos</Link>
+      </footer>
     </div>
   )
 }
