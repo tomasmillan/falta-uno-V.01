@@ -1,27 +1,77 @@
-import { Route, Routes } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { isSupabaseConfigured } from '../lib/supabase'
+import { useAuth } from '../features/auth/useAuth'
+import LoginPage from '../features/auth/LoginPage'
+import OnboardingPage from '../features/profile/OnboardingPage'
+import ProfilePage from '../features/profile/ProfilePage'
+import { useProfile } from '../features/profile/useProfile'
+import { CATEGORY_LABELS, type Profile } from '../types/domain'
+import Spinner from '../components/Spinner'
 import HomePage from './HomePage'
 
 export default function App() {
+  const { session, loading: authLoading, signOut } = useAuth()
+  const { profile, setProfile, loading: profileLoading, error } = useProfile(session?.user.id)
+
+  let content: ReactNode
+  if (!isSupabaseConfigured) {
+    content = (
+      <div className="card" role="status">
+        <strong>Falta configurar Supabase.</strong>
+        <p className="muted">
+          Copiá <code>.env.example</code> a <code>.env.local</code> y completá las claves del proyecto.
+        </p>
+      </div>
+    )
+  } else if (authLoading) {
+    content = <Spinner />
+  } else if (!session) {
+    content = <LoginPage />
+  } else if (profileLoading) {
+    content = <Spinner label="Cargando tu perfil…" />
+  } else if (error) {
+    content = <p className="error card" role="alert">{error}</p>
+  } else if (!profile) {
+    content = <OnboardingPage session={session} onDone={setProfile} />
+  } else {
+    content = (
+      <Routes>
+        <Route path="/" element={<HomePage profile={profile} />} />
+        <Route
+          path="/perfil"
+          element={<ProfilePage profile={profile} onSaved={setProfile} onSignOut={signOut} />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    )
+  }
+
   return (
     <div className="app-shell">
-      <header>
-        <h1>Falta Uno</h1>
-        <p className="muted">Armá partidos de pádel con gente de tu nivel.</p>
+      <header className="app-header">
+        <Link to="/" className="brand">
+          <span className="ball" aria-hidden="true" />
+          <h1>Falta Uno</h1>
+        </Link>
+        {session && profile && <ProfileBadge profile={profile} />}
       </header>
-
-      {!isSupabaseConfigured && (
-        <div className="card" role="status">
-          <strong>Falta configurar Supabase.</strong>
-          <p className="muted">
-            Copiá <code>.env.example</code> a <code>.env.local</code> y completá las claves del proyecto.
-          </p>
-        </div>
-      )}
-
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-      </Routes>
+      {content}
     </div>
+  )
+}
+
+function ProfileBadge({ profile }: { profile: Profile }) {
+  const initials = profile.fullName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('')
+  return (
+    <Link to="/perfil" className="avatar-link" aria-label="Mi perfil">
+      <span className="avatar">{initials}</span>
+      <span className="avatar-cat">{CATEGORY_LABELS[profile.category]}</span>
+    </Link>
   )
 }
