@@ -43,3 +43,5 @@ Success: 10 real players, 5 matches completed through the app in the first two w
 | 2026-11-11 | TypeScript | Industry standard; easier onboarding for future developers |
 | 2026-11-04 | Serve both clubs (B2B) and players (B2C) | Clubs bring the courts that players later book; club first, marketplace second |
 | 2026-11-13 | Google sign-in only for v0.1 | Supabase built-in email only reaches team members; Google needs no email service. Email and other providers later |
+| 2026-11-13 | WhatsApp numbers in a private table | Only the owner and teammates of a full match can read them, enforced by the database |
+| 2026-11-13 | Players outside the category range can still join, with a warning | Keeps v0.1 simple; request/approval flow later if needed |

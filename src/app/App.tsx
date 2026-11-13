@@ -8,7 +8,9 @@ import ProfilePage from '../features/profile/ProfilePage'
 import { useProfile } from '../features/profile/useProfile'
 import { CATEGORY_LABELS, type Profile } from '../types/domain'
 import Spinner from '../components/Spinner'
-import HomePage from './HomePage'
+import MatchListPage from '../features/matches/MatchListPage'
+import CreateMatchPage from '../features/matches/CreateMatchPage'
+import MatchDetailPage from '../features/matches/MatchDetailPage'
 import PrivacyPage from '../features/legal/PrivacyPage'
 import TermsPage from '../features/legal/TermsPage'
 
@@ -50,7 +52,9 @@ export default function App() {
   } else {
     content = (
       <Routes>
-        <Route path="/" element={<HomePage profile={profile} />} />
+        <Route path="/" element={<MatchListPage profile={profile} />} />
+        <Route path="/partidos/nuevo" element={<CreateMatchPage profile={profile} />} />
+        <Route path="/partidos/:id" element={<MatchDetailPage profile={profile} />} />
         <Route
           path="/perfil"
           element={<ProfilePage profile={profile} onSaved={setProfile} onSignOut={signOut} />}

@@ -6,7 +6,6 @@ interface ProfileRow {
   full_name: string
   category: number
   preferred_side: PreferredSide
-  whatsapp: string | null
   created_at: string
 }
 
@@ -15,22 +14,37 @@ const toProfile = (row: ProfileRow): Profile => ({
   fullName: row.full_name,
   category: row.category as Category,
   preferredSide: row.preferred_side,
-  whatsapp: row.whatsapp,
   createdAt: row.created_at,
 })
 
-export type ProfileInput = Pick<Profile, 'fullName' | 'category' | 'preferredSide' | 'whatsapp'>
+const PROFILE_COLUMNS = 'id, full_name, category, preferred_side, created_at'
+
+export type ProfileInput = Pick<Profile, 'fullName' | 'category' | 'preferredSide'> & {
+  whatsapp: string
+}
 
 /** Returns the user's profile, or null if they haven't created one yet. */
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   if (!supabase) return null
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, category, preferred_side, whatsapp, created_at')
+    .select(PROFILE_COLUMNS)
     .eq('id', userId)
     .maybeSingle<ProfileRow>()
   if (error) throw error
   return data ? toProfile(data) : null
+}
+
+/** The user's own WhatsApp (private table; only teammates of full matches can read it). */
+export async function fetchOwnWhatsapp(userId: string): Promise<string> {
+  if (!supabase) return ''
+  const { data, error } = await supabase
+    .from('player_contacts')
+    .select('whatsapp')
+    .eq('player_id', userId)
+    .maybeSingle<{ whatsapp: string }>()
+  if (error) throw error
+  return data?.whatsapp ?? ''
 }
 
 export async function saveProfile(userId: string, input: ProfileInput): Promise<Profile> {
@@ -42,10 +56,16 @@ export async function saveProfile(userId: string, input: ProfileInput): Promise<
       full_name: input.fullName.trim(),
       category: input.category,
       preferred_side: input.preferredSide,
-      whatsapp: input.whatsapp?.trim() || null,
     })
-    .select('id, full_name, category, preferred_side, whatsapp, created_at')
+    .select(PROFILE_COLUMNS)
     .single<ProfileRow>()
   if (error) throw error
+
+  const whatsapp = input.whatsapp.trim()
+  const contact = whatsapp
+    ? await supabase.from('player_contacts').upsert({ player_id: userId, whatsapp })
+    : await supabase.from('player_contacts').delete().eq('player_id', userId)
+  if (contact.error) throw contact.error
+
   return toProfile(data)
 }

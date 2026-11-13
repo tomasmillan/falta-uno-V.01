@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { CATEGORY_LABELS, type Category, type PreferredSide, type Profile } from '../../types/domain'
-import { saveProfile } from './profileApi'
+import { fetchOwnWhatsapp, saveProfile } from './profileApi'
 
 const CATEGORIES = (Object.keys(CATEGORY_LABELS).map(Number) as Category[]).sort((a, b) => b - a)
 
@@ -22,7 +22,13 @@ export default function ProfileForm({ userId, initial, submitLabel, onSaved }: P
   const [fullName, setFullName] = useState(initial?.fullName ?? '')
   const [category, setCategory] = useState<Category>(initial?.category ?? 6)
   const [preferredSide, setPreferredSide] = useState<PreferredSide>(initial?.preferredSide ?? 'either')
-  const [whatsapp, setWhatsapp] = useState(initial?.whatsapp ?? '')
+  const [whatsapp, setWhatsapp] = useState('')
+
+  // WhatsApp lives in a private table; load it for existing profiles.
+  useEffect(() => {
+    if (!initial?.id) return
+    fetchOwnWhatsapp(userId).then(setWhatsapp).catch(() => undefined)
+  }, [initial?.id, userId])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

@@ -3,6 +3,6 @@ export const LEGAL = {
   appName: 'Falta Uno',
   owner: 'Tomás Millán (TML Studio)',
   country: 'República Argentina',
-  contactEmail: 'CONTACT_EMAIL_PENDING',
+  contactEmail: 'info@tmlstudio.online',
   lastUpdated: '13 de noviembre de 2026',
 } as const

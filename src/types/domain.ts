@@ -21,14 +21,21 @@ export interface Profile {
   fullName: string
   category: Category
   preferredSide: PreferredSide
-  whatsapp: string | null
   createdAt: string
+}
+
+export interface MatchPlayer {
+  id: string
+  fullName: string
+  category: Category
+  preferredSide: PreferredSide
+  joinedAt: string
 }
 
 export interface Match {
   id: string
   createdBy: string
-  /** ISO date-time of the match start, in the club's local time zone. */
+  /** ISO date-time of the match start. */
   startsAt: string
   /** Free text for v0.1 (e.g. "Cancha 2"); becomes a foreign key when courts are modeled. */
   courtLabel: string
@@ -38,13 +45,22 @@ export interface Match {
   categoryMin: Category
   type: MatchType
   status: MatchStatus
-  /** Always 4 for padel doubles. */
-  capacity: number
+  /** Confirmed players who don't use the app (e.g. the creator's friends). */
+  guestCount: number
+  players: MatchPlayer[]
   createdAt: string
 }
 
-export interface MatchPlayer {
-  matchId: string
-  playerId: string
-  joinedAt: string
-}
+/** Padel doubles always needs four players. */
+export const MATCH_SIZE = 4
+
+export const missingPlayers = (match: Match) =>
+  Math.max(0, MATCH_SIZE - match.players.length - match.guestCount)
+
+export const categoryRangeLabel = (match: Pick<Match, 'categoryMax' | 'categoryMin'>) =>
+  match.categoryMax === match.categoryMin
+    ? CATEGORY_LABELS[match.categoryMax]
+    : `${CATEGORY_LABELS[match.categoryMin]} a ${CATEGORY_LABELS[match.categoryMax]}`
+
+export const isInCategoryRange = (category: Category, match: Pick<Match, 'categoryMax' | 'categoryMin'>) =>
+  category >= match.categoryMax && category <= match.categoryMin

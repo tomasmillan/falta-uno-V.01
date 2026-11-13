@@ -26,7 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      // Return to the page the user was on (e.g. a shared match link)
+      options: { redirectTo: window.location.href },
     })
     if (error) throw error
   }
