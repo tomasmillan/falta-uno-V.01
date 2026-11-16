@@ -212,3 +212,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn-small { width: auto; min-height: 36px; padding: 6px 12px; font-size: 14px; text-decoration: none; }
 .btn-whatsapp { background: #1f9d55; color: #ffffff; text-decoration: none; }
 .btn-danger { background: var(--color-danger); color: var(--color-surface); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.field select option:disabled { color: var(--color-muted); }
+.notice .btn-row { margin-top: 4px; }

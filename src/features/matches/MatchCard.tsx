@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { categoryRangeLabel, MATCH_SIZE, missingPlayers, type Match } from '../../types/domain'
+import { categoryRangeLabel, courtLabelOrPending, MATCH_SIZE, missingPlayers, type Match } from '../../types/domain'
 import { firstName, formatDay, formatTime, initials } from './format'
 
 export function MissingBadge({ match }: { match: Match }) {
@@ -38,7 +38,7 @@ export default function MatchCard({ match, currentUserId }: { match: Match; curr
         <span>{formatDay(match.startsAt)}</span>
       </div>
       <div className="match-body">
-        <span className="match-title">{match.courtLabel} · {categoryRangeLabel(match)}</span>
+        <span className="match-title">{courtLabelOrPending(match)} · {categoryRangeLabel(match)}</span>
         <span className="match-meta">
           {match.type === 'competitive' ? 'Competitivo' : 'Amistoso'}
           {creator && ` · armado por ${firstName(creator.fullName)}`}

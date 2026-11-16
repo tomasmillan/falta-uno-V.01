@@ -34,11 +34,12 @@ export interface MatchPlayer {
 
 export interface Match {
   id: string
+  clubId: string
   createdBy: string
   /** ISO date-time of the match start. */
   startsAt: string
-  /** Free text for v0.1 (e.g. "Cancha 2"); becomes a foreign key when courts are modeled. */
-  courtLabel: string
+  /** Free text (e.g. "Cancha 2"), or null while the court is not booked yet. Becomes a foreign key when courts are modeled. */
+  courtLabel: string | null
   /** Strongest category allowed (e.g. 5 for "5ta"). */
   categoryMax: Category
   /** Weakest category allowed (e.g. 6 for "6ta"). */
@@ -64,3 +65,8 @@ export const categoryRangeLabel = (match: Pick<Match, 'categoryMax' | 'categoryM
 
 export const isInCategoryRange = (category: Category, match: Pick<Match, 'categoryMax' | 'categoryMin'>) =>
   category >= match.categoryMax && category <= match.categoryMin
+
+export const courtLabelOrPending = (match: Pick<Match, 'courtLabel'>) => match.courtLabel ?? 'Cancha a definir'
+
+/** Club booking slots: 90-minute turns from 08:00 to 23:00. */
+export const MATCH_SLOTS = ['08:00', '09:30', '11:00', '12:30', '14:00', '15:30', '17:00', '18:30', '20:00', '21:30', '23:00']
