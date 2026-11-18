@@ -20,6 +20,15 @@ Success: 10 real players, 5 matches completed through the app in the first two w
 - [x] Warning when a similar open match already exists
 - [x] Schedule conflicts blocked: a player in two matches at once, or two matches on the same court and slot
 
+## v0.1.2 — Installable app
+
+- [x] Web app manifest and icons (Android, iPhone, desktop)
+- [x] One-time "install the app" card with per-phone instructions
+
+## v0.1.3 — Match invitations (next)
+
+- Invite players you've already played with to a match; in-app "Te invitaron" inbox with join/decline; WhatsApp message link
+
 ## v0.2 — Club tools
 
 - Court staff view: daily court agenda, move or cancel matches with player notifications
@@ -73,3 +82,5 @@ Tracked with SQL queries on Supabase (no dashboard yet): matches created, matche
 | 2026-11-16 | club_id on matches and profiles now | Cheap with one club; expensive to retrofit with several |
 | 2026-11-16 | Pull-request workflow | Founder reviews each feature's diff and preview before merging |
 | 2026-11-18 | One match per player per slot; one match per court per slot | Prevents impossible schedules; enforced in the database (unique index + function checks) |
+| 2026-11-18 | No service worker for the PWA | Chrome no longer requires one to install; offline adds complexity with no pilot value |
+| 2026-11-18 | Invitations option A: invite past teammates in-app, WhatsApp link by hand | Covers most of the need in ~1 week; friend network and automatic notifications later |

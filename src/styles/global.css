@@ -216,3 +216,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .field select option:disabled { color: var(--color-muted); }
 .notice .btn-row { margin-top: 4px; }
+
+/* Install hint */
+.install-hint { display: flex; flex-direction: column; gap: 10px; border-color: var(--color-primary); }
+.install-hint-head { display: grid; grid-template-columns: 40px minmax(0, 1fr) 32px; gap: 10px; align-items: center; }
+.install-hint-head img { border-radius: 10px; }
+.install-hint-head p { margin: 2px 0 0; font-size: 14px; }
+.install-hint-close {
+  width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--color-bg);
+  font-size: 20px; line-height: 1; cursor: pointer; color: var(--color-muted);
+}
+.install-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+
+/* Installed app: respect the phone's notch and home bar */
+@media (display-mode: standalone) {
+  .app-shell { padding-top: max(var(--space), env(safe-area-inset-top)); padding-bottom: max(var(--space), env(safe-area-inset-bottom)); }
+}
