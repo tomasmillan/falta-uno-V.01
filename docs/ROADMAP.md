@@ -18,6 +18,7 @@ Success: 10 real players, 5 matches completed through the app in the first two w
 - [x] Court optional ("a definir") and editable by the creator after booking
 - [x] 90-minute booking slots
 - [x] Warning when a similar open match already exists
+- [x] Schedule conflicts blocked: a player in two matches at once, or two matches on the same court and slot
 
 ## v0.2 — Club tools
 
@@ -48,8 +49,8 @@ Ideas collected so far, placed where they become possible. Strategy: be the best
 | Phase | Players | Clubs | Differentiators |
 | --- | --- | --- | --- |
 | v0.1 (done) | Open matches by category, player profile | — | — |
-| v0.2 | Match history | Court agenda for staff, simple usage reports (matches, occupancy) | — |
-| v0.3 | Ranking from results | — | Tournaments and "americanos": brackets, results, standings |
+| v0.2 | "Mis partidos": match history and matches played (requested by a pilot tester) | Court agenda for staff, usage reports for the club (matches, occupancy, active players) | — |
+| v0.3 | Results per match, ranking from results, player stats (requested by a pilot tester) | — | Tournaments and "americanos": brackets, results, standings |
 | v1.0 | Real-time availability grid, split payments, court pre-booking with a confirmation deadline (2 h) and a small fee if not confirmed | Unified calendar (app + manual bookings), recurring fixed slots, cancellation rules and deposits, cash and revenue reports | WhatsApp confirmations and payment links |
 | Later | Club search and map (location, court type, price), automatic notifications (reminders, freed slots, rain) | Equipment rental (balls, rackets) | Loyalty points and discounts |
 
@@ -71,3 +72,4 @@ Tracked with SQL queries on Supabase (no dashboard yet): matches created, matche
 | 2026-11-16 | Court optional when creating a match | With OpenKey the court is booked after the four players confirm |
 | 2026-11-16 | club_id on matches and profiles now | Cheap with one club; expensive to retrofit with several |
 | 2026-11-16 | Pull-request workflow | Founder reviews each feature's diff and preview before merging |
+| 2026-11-18 | One match per player per slot; one match per court per slot | Prevents impossible schedules; enforced in the database (unique index + function checks) |

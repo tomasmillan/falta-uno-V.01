@@ -10,7 +10,7 @@ import {
   type Profile,
 } from '../../types/domain'
 import { createMatch, matchErrorMessage } from './matchesApi'
-import { formatDay, formatTime } from './format'
+import { formatDay, formatDayInSentence, formatTime } from './format'
 import { combineDateTime, localDateKey, nextDays } from './dateTime'
 import { useMatches } from './useMatches'
 import CourtField from './CourtField'
@@ -45,8 +45,18 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
   const startsAt = combineDateTime(day, time)
   const slotPassed = startsAt.getTime() < Date.now()
 
+  const sameSlot = matches.filter(
+    (m) => m.status !== 'cancelled' && new Date(m.startsAt).getTime() === startsAt.getTime(),
+  )
+  // The player can't be in two matches at the same time (also enforced by the database).
+  const myConflict = sameSlot.find((m) => m.players.some((p) => p.id === profile.id))
+  // A court can hold one match per slot (also enforced by the database).
+  const normalizedCourt = courtLabel.trim().toLowerCase()
+  const courtTaken =
+    hasCourt && normalizedCourt !== '' && sameSlot.some((m) => m.courtLabel?.trim().toLowerCase() === normalizedCourt)
+
   // An open match at the same time whose category range overlaps: better to join it than split players.
-  const duplicate = matches.find(
+  const duplicate = myConflict ? undefined : matches.find(
     (m) =>
       m.status === 'open' &&
       missingPlayers(m) > 0 &&
@@ -70,6 +80,7 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
       setError('Escribí qué cancha tenés o elegí "A definir".')
       return
     }
+    if (myConflict || courtTaken) return
     if (duplicate && !ignoreDuplicate) return
     setSaving(true)
     setError(null)
@@ -156,6 +167,9 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
           onHasCourtChange={setHasCourt}
           onCourtLabelChange={setCourtLabel}
         />
+        {courtTaken && (
+          <p className="error" role="alert">Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".</p>
+        )}
 
         <fieldset className="field">
           <legend>Tipo</legend>
@@ -168,6 +182,18 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
             ))}
           </div>
         </fieldset>
+
+        {myConflict && (
+          <div className="notice stack-tight" role="status">
+            <strong>Ya estás anotado a esa hora</strong>
+            <span>
+              Tenés un partido {formatDayInSentence(myConflict.startsAt)} a las {formatTime(myConflict.startsAt)}. Elegí otro turno.
+            </span>
+            <div className="btn-row">
+              <Link to={`/partidos/${myConflict.id}`} className="btn btn-ghost btn-small">Ver mi partido</Link>
+            </div>
+          </div>
+        )}
 
         {duplicate && !ignoreDuplicate && (
           <div className="notice stack-tight" role="status">
@@ -186,7 +212,7 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
         )}
 
         {error && <p className="error" role="alert">{error}</p>}
-        <button type="submit" className="btn btn-primary" disabled={saving || (!!duplicate && !ignoreDuplicate)}>
+        <button type="submit" className="btn btn-primary" disabled={saving || !!myConflict || courtTaken || (!!duplicate && !ignoreDuplicate)}>
           {saving ? 'Publicando…' : 'Publicar partido'}
         </button>
       </form>

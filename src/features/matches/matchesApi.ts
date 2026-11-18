@@ -161,6 +161,9 @@ export function matchErrorMessage(error: unknown): string {
     not_match_creator: 'Solo quien armó el partido puede cancelarlo.',
     starts_in_past: 'Elegí un horario que todavía no haya pasado.',
     profile_required: 'Completá tu perfil antes de sumarte.',
+    player_time_conflict: 'Ya estás anotado en un partido a esa hora.',
+    court_taken: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',
+    matches_court_slot_unique: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',
   }
   const code = Object.keys(known).find((k) => message.includes(k))
   return code ? known[code] : 'Algo falló. Revisá tu conexión y probá de nuevo.'
