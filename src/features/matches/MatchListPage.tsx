@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CATEGORY_LABELS, isInCategoryRange, missingPlayers, type Profile } from '../../types/domain'
 import Spinner from '../../components/Spinner'
+import InstallHint from '../../components/InstallHint'
 import MatchCard from './MatchCard'
 import { formatDay } from './format'
 import { useMatches } from './useMatches'
@@ -29,6 +30,7 @@ export default function MatchListPage({ profile }: { profile: Profile }) {
   let lastDay = ''
   return (
     <main className="stack">
+      <InstallHint />
       <h2>Partidos</h2>
       <div className="chips" role="group" aria-label="Filtrar partidos">
         {filters.map((f) => (
