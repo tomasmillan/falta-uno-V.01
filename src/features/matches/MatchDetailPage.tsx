@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import {
   CATEGORY_LABELS,
   categoryRangeLabel,
+  courtLabelOrPending,
   isInCategoryRange,
   MATCH_SIZE,
   missingPlayers,
@@ -11,6 +12,7 @@ import {
 } from '../../types/domain'
 import Spinner from '../../components/Spinner'
 import { MissingBadge } from './MatchCard'
+import EditMatchForm from './EditMatchForm'
 import {
   cancelMatch,
   fetchContacts,
@@ -27,7 +29,7 @@ const SIDE_LABELS = { drive: 'Drive', backhand: 'Revés', either: 'Indistinto' }
 function shareText(match: Match): string {
   const missing = missingPlayers(match)
   const head = missing === 1 ? 'Falta 1' : `Faltan ${missing}`
-  return `🎾 ${head} para pádel ${formatDayInSentence(match.startsAt)} a las ${formatTime(match.startsAt)} – ${match.courtLabel} – ${categoryRangeLabel(match)}. Sumate acá: ${window.location.origin}/partidos/${match.id}`
+  return `🎾 ${head} para pádel ${formatDayInSentence(match.startsAt)} a las ${formatTime(match.startsAt)} – ${courtLabelOrPending(match)} – ${categoryRangeLabel(match)}. Sumate acá: ${window.location.origin}/partidos/${match.id}`
 }
 
 export default function MatchDetailPage({ profile }: { profile: Profile }) {
@@ -41,6 +43,7 @@ export default function MatchDetailPage({ profile }: { profile: Profile }) {
   const [error, setError] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<'leave' | 'cancel' | null>(null)
   const [copied, setCopied] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -116,7 +119,7 @@ export default function MatchDetailPage({ profile }: { profile: Profile }) {
           <div>
             <h2>{formatDay(match.startsAt)} · {formatTime(match.startsAt)}</h2>
             <p className="muted">
-              {match.courtLabel} · {categoryRangeLabel(match)} · {match.type === 'competitive' ? 'Competitivo' : 'Amistoso'}
+              {courtLabelOrPending(match)} · {categoryRangeLabel(match)} · {match.type === 'competitive' ? 'Competitivo' : 'Amistoso'}
             </p>
           </div>
           <MissingBadge match={match} />
@@ -126,7 +129,23 @@ export default function MatchDetailPage({ profile }: { profile: Profile }) {
           <p className="notice notice-ok">¡Partido publicado! Compartilo para que se sumen más rápido.</p>
         )}
         {isCancelled && <p className="notice">Este partido fue cancelado.</p>}
+        {imCreator && !isCancelled && !hasStarted && !editing && (
+          <button type="button" className="btn btn-ghost btn-small" onClick={() => setEditing(true)}>
+            {match.courtLabel ? 'Editar día, turno o cancha' : 'Cargar cancha o cambiar turno'}
+          </button>
+        )}
       </section>
+
+      {editing && (
+        <EditMatchForm
+          match={match}
+          onCancel={() => setEditing(false)}
+          onDone={() => {
+            setEditing(false)
+            load()
+          }}
+        />
+      )}
 
       <section className="card stack">
         <div className="detail-head">

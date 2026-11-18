@@ -3,9 +3,10 @@ import type { Category, Match, MatchStatus, MatchType, PreferredSide } from '../
 
 interface MatchRow {
   id: string
+  club_id: string
   created_by: string
   starts_at: string
-  court_label: string
+  court_label: string | null
   category_max: number
   category_min: number
   match_type: MatchType
@@ -19,12 +20,13 @@ interface MatchRow {
 }
 
 const MATCH_SELECT = `
-  id, created_by, starts_at, court_label, category_max, category_min, match_type, status, guest_count, created_at,
+  id, club_id, created_by, starts_at, court_label, category_max, category_min, match_type, status, guest_count, created_at,
   match_players ( joined_at, profiles ( id, full_name, category, preferred_side ) )
 `
 
 const toMatch = (row: MatchRow): Match => ({
   id: row.id,
+  clubId: row.club_id,
   createdBy: row.created_by,
   startsAt: row.starts_at,
   courtLabel: row.court_label,
@@ -76,7 +78,8 @@ export async function fetchMatch(id: string): Promise<Match | null> {
 
 export interface NewMatchInput {
   startsAt: Date
-  courtLabel: string
+  /** Empty or null = court not booked yet. */
+  courtLabel: string | null
   categoryMax: Category
   categoryMin: Category
   type: MatchType
@@ -86,7 +89,7 @@ export interface NewMatchInput {
 export async function createMatch(input: NewMatchInput): Promise<string> {
   const { data, error } = await client().rpc('create_match', {
     p_starts_at: input.startsAt.toISOString(),
-    p_court_label: input.courtLabel,
+    p_court_label: input.courtLabel ?? '',
     p_category_max: input.categoryMax,
     p_category_min: input.categoryMin,
     p_match_type: input.type,
@@ -94,6 +97,16 @@ export async function createMatch(input: NewMatchInput): Promise<string> {
   })
   if (error) throw error
   return data as string
+}
+
+/** Creator only: change time and/or court (e.g. once the court is booked). */
+export async function updateMatch(id: string, startsAt: Date, courtLabel: string | null) {
+  const { error } = await client().rpc('update_match', {
+    p_match_id: id,
+    p_starts_at: startsAt.toISOString(),
+    p_court_label: courtLabel ?? '',
+  })
+  if (error) throw error
 }
 
 export async function joinMatch(id: string) {
@@ -148,6 +161,9 @@ export function matchErrorMessage(error: unknown): string {
     not_match_creator: 'Solo quien armó el partido puede cancelarlo.',
     starts_in_past: 'Elegí un horario que todavía no haya pasado.',
     profile_required: 'Completá tu perfil antes de sumarte.',
+    player_time_conflict: 'Ya estás anotado en un partido a esa hora.',
+    court_taken: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',
+    matches_court_slot_unique: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',
   }
   const code = Object.keys(known).find((k) => message.includes(k))
   return code ? known[code] : 'Algo falló. Revisá tu conexión y probá de nuevo.'
