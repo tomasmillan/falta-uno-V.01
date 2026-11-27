@@ -23,6 +23,7 @@ export default function ProfileForm({ userId, initial, submitLabel, onSaved }: P
   const [category, setCategory] = useState<Category>(initial?.category ?? 6)
   const [preferredSide, setPreferredSide] = useState<PreferredSide>(initial?.preferredSide ?? 'either')
   const [whatsapp, setWhatsapp] = useState('')
+  const [unitLabel, setUnitLabel] = useState(initial?.unitLabel ?? '')
 
   // WhatsApp lives in a private table; load it for existing profiles.
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function ProfileForm({ userId, initial, submitLabel, onSaved }: P
     setSaving(true)
     setError(null)
     try {
-      onSaved(await saveProfile(userId, { fullName, category, preferredSide, whatsapp }))
+      onSaved(await saveProfile(userId, { fullName, category, preferredSide, whatsapp, unitLabel }))
     } catch {
       setError('No pudimos guardar tu perfil. Probá de nuevo.')
     } finally {
@@ -66,6 +67,18 @@ export default function ProfileForm({ userId, initial, submitLabel, onSaved }: P
           maxLength={80}
           required
         />
+      </div>
+
+      <div className="field">
+        <label htmlFor="profile-unit">Lote / UF</label>
+        <input
+          id="profile-unit"
+          value={unitLabel}
+          onChange={(e) => setUnitLabel(e.target.value)}
+          placeholder="Ej.: Lote 12"
+          maxLength={20}
+        />
+        <span className="hint">Lo usa el club para registrar tus partidos.</span>
       </div>
 
       <div className="field">

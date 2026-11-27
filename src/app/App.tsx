@@ -15,6 +15,8 @@ import CreateMatchPage from '../features/matches/CreateMatchPage'
 import MatchDetailPage from '../features/matches/MatchDetailPage'
 import PrivacyPage from '../features/legal/PrivacyPage'
 import TermsPage from '../features/legal/TermsPage'
+import ClubLayout from '../features/club/ClubLayout'
+import { useClubRole } from '../features/club/useClubRole'
 
 const PUBLIC_PATHS = ['/privacidad', '/terminos']
 
@@ -24,6 +26,7 @@ export default function App() {
 
   const { pathname } = useLocation()
   const invitationsState = useInvitations(profile ? session?.user.id : undefined)
+  const clubRole = useClubRole(!!profile)
 
   let content: ReactNode
   if (PUBLIC_PATHS.includes(pathname)) {
@@ -70,6 +73,7 @@ export default function App() {
             />
           }
         />
+        {clubRole && <Route path="/club/*" element={<ClubLayout profile={profile} role={clubRole} />} />}
         <Route
           path="/perfil"
           element={<ProfilePage profile={profile} onSaved={setProfile} onSignOut={signOut} />}
@@ -88,6 +92,9 @@ export default function App() {
         </Link>
         {session && profile && (
           <div className="header-actions">
+            {clubRole && (
+              <Link to="/club" className="club-link">Club</Link>
+            )}
             <InvitationsBell count={invitationsState.invitations.length} />
             <ProfileBadge profile={profile} />
           </div>

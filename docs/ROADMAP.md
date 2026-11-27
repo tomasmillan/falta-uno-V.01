@@ -32,11 +32,23 @@ Success: 10 real players, 5 matches completed through the app in the first two w
 - [x] WhatsApp message link to nudge the invitee
 - Later: friend network, automatic notifications (push, email, WhatsApp API)
 
-## v0.2 — Club tools
+## v0.2 — Club version: billing (in review)
 
-- Court staff view: daily court agenda, move or cancel matches with player notifications
-- Club admin: courts, users and roles
-- Basic ranking from match results
+Built from the court manager's interview (Nov 2026): his biggest pain is the manual Excel of who played, guests of members that never get billed, and lights usage.
+
+- [x] Staff roles per club (admin, court staff)
+- [x] Courts as a fixed list per club (with or without lights); old typed courts linked automatically
+- [x] Member unit (lote / UF) in the profile
+- [x] Named guests and the member responsible for them
+- [x] End-of-day close: played / not played and lights
+- [x] Manual walk-in matches
+- [x] Billing report by day / week / month: totals, per-member summary, detail, CSV for Excel
+
+## v0.2.1 — Club version: daily agenda
+
+- Court grid for the day: confirmed, to confirm and open matches
+- Maintenance blocks per court with time range
+- Staff confirms court availability (replaces checking OpenKey by hand)
 
 ## v0.3 — Tournaments
 
@@ -87,3 +99,5 @@ Tracked with SQL queries on Supabase (no dashboard yet): matches created, matche
 | 2026-11-18 | One match per player per slot; one match per court per slot | Prevents impossible schedules; enforced in the database (unique index + function checks) |
 | 2026-11-18 | No service worker for the PWA | Chrome no longer requires one to install; offline adds complexity with no pilot value |
 | 2026-11-18 | Invitations option A: invite past teammates in-app, WhatsApp link by hand | Covers most of the need in ~1 week; friend network and automatic notifications later |
+| 2026-11-27 | v0.2 starts with billing, not the agenda | Court manager's #1 pain; unbilled guests and lights make the app pay for itself in the club pitch |
+| 2026-11-27 | create_match_v2 / update_match_v2 alongside the old functions | The live app keeps working between running the migration and merging the PR |

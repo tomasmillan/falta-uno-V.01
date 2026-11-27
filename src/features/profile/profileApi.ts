@@ -3,7 +3,9 @@ import type { Category, PreferredSide, Profile } from '../../types/domain'
 
 interface ProfileRow {
   id: string
+  club_id: string
   full_name: string
+  unit_label: string | null
   category: number
   preferred_side: PreferredSide
   created_at: string
@@ -11,15 +13,17 @@ interface ProfileRow {
 
 const toProfile = (row: ProfileRow): Profile => ({
   id: row.id,
+  clubId: row.club_id,
   fullName: row.full_name,
+  unitLabel: row.unit_label,
   category: row.category as Category,
   preferredSide: row.preferred_side,
   createdAt: row.created_at,
 })
 
-const PROFILE_COLUMNS = 'id, full_name, category, preferred_side, created_at'
+const PROFILE_COLUMNS = 'id, club_id, full_name, unit_label, category, preferred_side, created_at'
 
-export type ProfileInput = Pick<Profile, 'fullName' | 'category' | 'preferredSide'> & {
+export type ProfileInput = Pick<Profile, 'fullName' | 'category' | 'preferredSide' | 'unitLabel'> & {
   whatsapp: string
 }
 
@@ -56,6 +60,7 @@ export async function saveProfile(userId: string, input: ProfileInput): Promise<
       full_name: input.fullName.trim(),
       category: input.category,
       preferred_side: input.preferredSide,
+      unit_label: input.unitLabel?.trim() || null,
     })
     .select(PROFILE_COLUMNS)
     .single<ProfileRow>()

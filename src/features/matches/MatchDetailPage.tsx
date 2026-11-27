@@ -171,15 +171,19 @@ export default function MatchDetailPage({ profile }: { profile: Profile }) {
               )}
             </li>
           ))}
-          {Array.from({ length: match.guestCount }, (_, i) => (
-            <li key={`g${i}`} className="player-row">
-              <span className="dot dot-lg dot-guest">+</span>
-              <div className="player-info">
-                <strong>Invitado</strong>
-                <span className="muted">Confirmado, no usa la app</span>
-              </div>
-            </li>
-          ))}
+          {Array.from({ length: match.guestCount }, (_, i) => {
+            const guest = match.guests[i]
+            const host = guest?.hostPlayerId ? match.players.find((p) => p.id === guest.hostPlayerId) : undefined
+            return (
+              <li key={guest?.id ?? `g${i}`} className="player-row">
+                <span className="dot dot-lg dot-guest">+</span>
+                <div className="player-info">
+                  <strong>{guest?.name ?? 'Invitado'}</strong>
+                  <span className="muted">{host ? `Invitado de ${firstName(host.fullName)}` : 'Invitado, no usa la app'}</span>
+                </div>
+              </li>
+            )
+          })}
           {Array.from({ length: missing }, (_, i) => (
             <li key={`e${i}`} className="player-row">
               <span className="dot dot-lg dot-empty" aria-hidden="true" />

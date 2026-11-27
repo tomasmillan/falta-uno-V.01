@@ -1,46 +1,42 @@
+import type { Court } from '../../types/domain'
+
 interface Props {
   idPrefix: string
-  hasCourt: boolean
-  courtLabel: string
-  onHasCourtChange: (value: boolean) => void
-  onCourtLabelChange: (value: string) => void
+  courts: Court[]
+  /** null = "A definir". */
+  courtId: string | null
+  onChange: (courtId: string | null) => void
+  /** Courts already used in the chosen slot (shown as taken). */
+  takenCourtIds?: Set<string>
 }
 
-const COURT_SUGGESTIONS = ['Cancha 1', 'Cancha 2', 'Cancha 3']
-
-/** "A definir" or a specific court. Used when creating and editing a match. */
-export default function CourtField({ idPrefix, hasCourt, courtLabel, onHasCourtChange, onCourtLabelChange }: Props) {
+/** Court picker from the club's list, with "A definir" for courts not booked yet. */
+export default function CourtField({ idPrefix, courts, courtId, onChange, takenCourtIds }: Props) {
   return (
-    <fieldset className="field">
-      <legend>Cancha</legend>
-      <div className="segmented">
-        <label className={!hasCourt ? 'is-selected' : ''}>
-          <input type="radio" name={`${idPrefix}-has-court`} checked={!hasCourt} onChange={() => onHasCourtChange(false)} />
-          A definir
-        </label>
-        <label className={hasCourt ? 'is-selected' : ''}>
-          <input type="radio" name={`${idPrefix}-has-court`} checked={hasCourt} onChange={() => onHasCourtChange(true)} />
-          Ya tengo cancha
-        </label>
-      </div>
-      {hasCourt ? (
-        <>
-          <label htmlFor={`${idPrefix}-court`} className="sr-only">Nombre de la cancha</label>
-          <input
-            id={`${idPrefix}-court`}
-            list={`${idPrefix}-court-suggestions`}
-            value={courtLabel}
-            onChange={(e) => onCourtLabelChange(e.target.value)}
-            placeholder="Ej.: Cancha 2"
-            maxLength={40}
-          />
-          <datalist id={`${idPrefix}-court-suggestions`}>
-            {COURT_SUGGESTIONS.map((c) => <option key={c} value={c} />)}
-          </datalist>
-        </>
-      ) : (
-        <span className="hint">Reservala en OpenKey cuando estén los cuatro y cargala acá.</span>
-      )}
-    </fieldset>
+    <div className="field">
+      <label htmlFor={`${idPrefix}-court`}>Cancha</label>
+      <select
+        id={`${idPrefix}-court`}
+        value={courtId ?? ''}
+        onChange={(e) => onChange(e.target.value || null)}
+      >
+        <option value="">A definir</option>
+        {courts.map((c) => {
+          const taken = takenCourtIds?.has(c.id) && c.id !== courtId
+          return (
+            <option key={c.id} value={c.id} disabled={taken}>
+              {c.name}{c.hasLights ? ' · con luz' : ''}{taken ? ' (ocupada)' : ''}
+            </option>
+          )
+        })}
+      </select>
+      <span className="hint">
+        {courts.length === 0
+          ? 'El club todavía no cargó sus canchas. Dejala "A definir".'
+          : courtId
+            ? 'La cancha queda reservada para este turno.'
+            : 'Elegila cuando estén los cuatro y la tengan confirmada.'}
+      </span>
+    </div>
   )
 }

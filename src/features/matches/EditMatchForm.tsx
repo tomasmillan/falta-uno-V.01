@@ -4,6 +4,7 @@ import { matchErrorMessage, updateMatch } from './matchesApi'
 import { formatDay } from './format'
 import { combineDateTime, localDateKey, localTimeKey, nextDays } from './dateTime'
 import CourtField from './CourtField'
+import { useCourts } from '../club/useCourts'
 
 interface Props {
   match: Match
@@ -24,8 +25,8 @@ export default function EditMatchForm({ match, onDone, onCancel }: Props) {
 
   const [day, setDay] = useState(localDateKey(start))
   const [time, setTime] = useState(currentTime)
-  const [hasCourt, setHasCourt] = useState(match.courtLabel !== null)
-  const [courtLabel, setCourtLabel] = useState(match.courtLabel ?? '')
+  const { courts } = useCourts(match.clubId)
+  const [courtId, setCourtId] = useState<string | null>(match.courtId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,14 +37,10 @@ export default function EditMatchForm({ match, onDone, onCancel }: Props) {
       setError('Ese turno ya pasó. Elegí uno más tarde.')
       return
     }
-    if (hasCourt && !courtLabel.trim()) {
-      setError('Escribí qué cancha tienen o elegí "A definir".')
-      return
-    }
     setSaving(true)
     setError(null)
     try {
-      await updateMatch(match.id, startsAt, hasCourt ? courtLabel : null)
+      await updateMatch(match.id, startsAt, courtId)
       onDone()
     } catch (e) {
       setError(matchErrorMessage(e))
@@ -68,13 +65,7 @@ export default function EditMatchForm({ match, onDone, onCancel }: Props) {
           </select>
         </div>
       </div>
-      <CourtField
-        idPrefix="edit"
-        hasCourt={hasCourt}
-        courtLabel={courtLabel}
-        onHasCourtChange={setHasCourt}
-        onCourtLabelChange={setCourtLabel}
-      />
+      <CourtField idPrefix="edit" courts={courts} courtId={courtId} onChange={setCourtId} />
       {error && <p className="error" role="alert">{error}</p>}
       <div className="btn-row">
         <button type="button" className="btn btn-ghost" onClick={onCancel}>Volver</button>

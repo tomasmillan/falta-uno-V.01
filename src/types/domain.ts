@@ -18,7 +18,10 @@ export type MatchStatus = 'open' | 'full' | 'cancelled'
 
 export interface Profile {
   id: string
+  clubId: string
   fullName: string
+  /** Lote / unidad funcional, used by the club to bill the member. */
+  unitLabel: string | null
   category: Category
   preferredSide: PreferredSide
   createdAt: string
@@ -32,9 +35,20 @@ export interface MatchPlayer {
   joinedAt: string
 }
 
+export interface MatchGuest {
+  id: string
+  name: string
+  hostPlayerId: string | null
+}
+
+export type PlayedStatus = 'pending' | 'played' | 'not_played'
+export type MatchSource = 'app' | 'manual'
+
 export interface Match {
   id: string
   clubId: string
+  /** Court from the club's list, or null while it's "a definir". */
+  courtId: string | null
   createdBy: string
   /** ISO date-time of the match start. */
   startsAt: string
@@ -48,7 +62,14 @@ export interface Match {
   status: MatchStatus
   /** Confirmed players who don't use the app (e.g. the creator's friends). */
   guestCount: number
+  /** Named guests (older matches may have guestCount > guests.length). */
+  guests: MatchGuest[]
   players: MatchPlayer[]
+  /** Set by club staff when closing the day. */
+  playedStatus: PlayedStatus
+  lightsUsed: boolean
+  /** 'manual' = registered by staff (walk-in). */
+  source: MatchSource
   createdAt: string
 }
 
@@ -89,3 +110,30 @@ export interface Teammate {
   preferredSide: PreferredSide
   matchesTogether: number
 }
+
+export type ClubRole = 'admin' | 'staff'
+
+export interface Court {
+  id: string
+  clubId: string
+  name: string
+  hasLights: boolean
+  active: boolean
+}
+
+/** One person in one match, as returned by billing_report(). */
+export interface BillingRow {
+  matchId: string
+  startsAt: string
+  court: string
+  personName: string
+  unitLabel: string | null
+  personType: 'Socio' | 'Invitado'
+  hostName: string | null
+  hostUnit: string | null
+  lightsUsed: boolean
+  playedStatus: PlayedStatus
+  source: MatchSource
+}
+
+export const MAX_GUESTS_PER_MATCH = 2

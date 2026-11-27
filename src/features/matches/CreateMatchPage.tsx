@@ -14,6 +14,7 @@ import { formatDay, formatDayInSentence, formatTime } from './format'
 import { combineDateTime, localDateKey, nextDays } from './dateTime'
 import { useMatches } from './useMatches'
 import CourtField from './CourtField'
+import { useCourts } from '../club/useCourts'
 
 const CATEGORIES = (Object.keys(CATEGORY_LABELS).map(Number) as Category[]).sort((a, b) => b - a)
 
@@ -29,8 +30,9 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
   const days = useMemo(() => nextDays(14), [])
   const [day, setDay] = useState(days[0])
   const [time, setTime] = useState(() => defaultSlot(days[0]))
-  const [hasCourt, setHasCourt] = useState(false)
-  const [courtLabel, setCourtLabel] = useState('')
+  const { courts } = useCourts(profile.clubId)
+  const [courtId, setCourtId] = useState<string | null>(null)
+  const [guestNames, setGuestNames] = useState<string[]>([])
   const [catA, setCatA] = useState<Category>(profile.category)
   const [catB, setCatB] = useState<Category>(profile.category)
   const [type, setType] = useState<MatchType>('friendly')
@@ -51,9 +53,9 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
   // The player can't be in two matches at the same time (also enforced by the database).
   const myConflict = sameSlot.find((m) => m.players.some((p) => p.id === profile.id))
   // A court can hold one match per slot (also enforced by the database).
-  const normalizedCourt = courtLabel.trim().toLowerCase()
-  const courtTaken =
-    hasCourt && normalizedCourt !== '' && sameSlot.some((m) => m.courtLabel?.trim().toLowerCase() === normalizedCourt)
+  const takenCourtIds = new Set(sameSlot.map((m) => m.courtId).filter((id): id is string => !!id))
+  const courtTaken = !!courtId && takenCourtIds.has(courtId)
+  const guestsNeeded = 3 - missing
 
   // An open match at the same time whose category range overlaps: better to join it than split players.
   const duplicate = myConflict ? undefined : matches.find(
@@ -76,8 +78,9 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
       setError('Ese turno ya pasó. Elegí uno más tarde.')
       return
     }
-    if (hasCourt && !courtLabel.trim()) {
-      setError('Escribí qué cancha tenés o elegí "A definir".')
+    const names = guestNames.slice(0, guestsNeeded).map((n) => n.trim())
+    if (names.length < guestsNeeded || names.some((n) => n.length < 2)) {
+      setError('Escribí el nombre de cada amigo que ya está confirmado.')
       return
     }
     if (myConflict || courtTaken) return
@@ -87,11 +90,11 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
     try {
       const id = await createMatch({
         startsAt,
-        courtLabel: hasCourt ? courtLabel : null,
+        courtId,
         categoryMax,
         categoryMin,
         type,
-        guestCount: 3 - missing,
+        guestNames: names,
       })
       navigate(`/partidos/${id}?nuevo=1`, { replace: true })
     } catch (e) {
@@ -160,12 +163,35 @@ export default function CreateMatchPage({ profile }: { profile: Profile }) {
           </span>
         </fieldset>
 
+        {guestsNeeded > 0 && (
+          <div className="stack-tight">
+            {Array.from({ length: guestsNeeded }, (_, i) => (
+              <div className="field" key={i}>
+                <label htmlFor={`guest-${i}`}>Nombre de tu amigo {guestsNeeded > 1 ? i + 1 : ''}</label>
+                <input
+                  id={`guest-${i}`}
+                  value={guestNames[i] ?? ''}
+                  onChange={(e) => {
+                    const next = [...guestNames]
+                    next[i] = e.target.value
+                    setGuestNames(next)
+                  }}
+                  placeholder="Nombre y apellido"
+                  maxLength={60}
+                  autoComplete="off"
+                />
+              </div>
+            ))}
+            <span className="hint">El club lo registra como tu invitado.</span>
+          </div>
+        )}
+
         <CourtField
           idPrefix="create"
-          hasCourt={hasCourt}
-          courtLabel={courtLabel}
-          onHasCourtChange={setHasCourt}
-          onCourtLabelChange={setCourtLabel}
+          courts={courts}
+          courtId={courtId}
+          onChange={setCourtId}
+          takenCourtIds={takenCourtIds}
         />
         {courtTaken && (
           <p className="error" role="alert">Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".</p>
