@@ -1,7 +1,7 @@
 import { supabase } from '../../lib/supabase'
 import type { Category, Match, MatchStatus, MatchType, PreferredSide } from '../../types/domain'
 
-interface MatchRow {
+export interface MatchRow {
   id: string
   club_id: string
   created_by: string
@@ -19,12 +19,12 @@ interface MatchRow {
   }[]
 }
 
-const MATCH_SELECT = `
+export const MATCH_SELECT = `
   id, club_id, created_by, starts_at, court_label, category_max, category_min, match_type, status, guest_count, created_at,
   match_players ( joined_at, profiles ( id, full_name, category, preferred_side ) )
 `
 
-const toMatch = (row: MatchRow): Match => ({
+export const toMatch = (row: MatchRow): Match => ({
   id: row.id,
   clubId: row.club_id,
   createdBy: row.created_by,
@@ -140,7 +140,8 @@ export function subscribeToMatches(onChange: () => void): () => void {
   const sb = supabase
   if (!sb) return () => undefined
   const channel = sb
-    .channel('matches-feed')
+    // Unique name per subscriber: several screens can listen at the same time.
+    .channel(`matches-feed-${crypto.randomUUID()}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'match_players' }, onChange)
     .subscribe()
@@ -161,6 +162,12 @@ export function matchErrorMessage(error: unknown): string {
     not_match_creator: 'Solo quien armó el partido puede cancelarlo.',
     starts_in_past: 'Elegí un horario que todavía no haya pasado.',
     profile_required: 'Completá tu perfil antes de sumarte.',
+    already_invited: 'Ya lo invitaste a este partido.',
+    already_in_match: 'Ya está anotado en este partido.',
+    not_a_teammate: 'Solo podés invitar a jugadores con los que ya jugaste.',
+    not_in_match: 'Tenés que estar anotado para invitar.',
+    invitation_not_found: 'No encontramos esa invitación.',
+    invitation_already_answered: 'Ya respondiste esta invitación.',
     player_time_conflict: 'Ya estás anotado en un partido a esa hora.',
     court_taken: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',
     matches_court_slot_unique: 'Esa cancha ya está ocupada en ese turno. Elegí otra o dejala "A definir".',

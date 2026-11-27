@@ -25,9 +25,12 @@ Success: 10 real players, 5 matches completed through the app in the first two w
 - [x] Web app manifest and icons (Android, iPhone, desktop)
 - [x] One-time "install the app" card with per-phone instructions
 
-## v0.1.3 — Match invitations (next)
+## v0.1.3 — Match invitations
 
-- Invite players you've already played with to a match; in-app "Te invitaron" inbox with join/decline; WhatsApp message link
+- [x] Invite players you've already played with (same club) from the match screen
+- [x] "Te invitaron" inbox with live badge; accept joins with the usual capacity and schedule rules
+- [x] WhatsApp message link to nudge the invitee
+- Later: friend network, automatic notifications (push, email, WhatsApp API)
 
 ## v0.2 — Club tools
 

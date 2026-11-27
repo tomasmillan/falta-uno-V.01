@@ -13,6 +13,7 @@ import {
 import Spinner from '../../components/Spinner'
 import { MissingBadge } from './MatchCard'
 import EditMatchForm from './EditMatchForm'
+import InvitePlayers from '../invitations/InvitePlayers'
 import {
   cancelMatch,
   fetchContacts,
@@ -211,6 +212,8 @@ export default function MatchDetailPage({ profile }: { profile: Profile }) {
               </button>
             </>
           )}
+
+          {imIn && !isFull && <InvitePlayers match={match} />}
 
           {text && (
             <div className="card stack">

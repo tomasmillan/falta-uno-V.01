@@ -8,6 +8,8 @@ import ProfilePage from '../features/profile/ProfilePage'
 import { useProfile } from '../features/profile/useProfile'
 import { CATEGORY_LABELS, type Profile } from '../types/domain'
 import Spinner from '../components/Spinner'
+import InvitationsPage from '../features/invitations/InvitationsPage'
+import { useInvitations } from '../features/invitations/useInvitations'
 import MatchListPage from '../features/matches/MatchListPage'
 import CreateMatchPage from '../features/matches/CreateMatchPage'
 import MatchDetailPage from '../features/matches/MatchDetailPage'
@@ -21,6 +23,7 @@ export default function App() {
   const { profile, setProfile, loading: profileLoading, error } = useProfile(session?.user.id)
 
   const { pathname } = useLocation()
+  const invitationsState = useInvitations(profile ? session?.user.id : undefined)
 
   let content: ReactNode
   if (PUBLIC_PATHS.includes(pathname)) {
@@ -56,6 +59,18 @@ export default function App() {
         <Route path="/partidos/nuevo" element={<CreateMatchPage profile={profile} />} />
         <Route path="/partidos/:id" element={<MatchDetailPage profile={profile} />} />
         <Route
+          path="/invitaciones"
+          element={
+            <InvitationsPage
+              profile={profile}
+              invitations={invitationsState.invitations}
+              loading={invitationsState.loading}
+              error={invitationsState.error}
+              onChange={invitationsState.reload}
+            />
+          }
+        />
+        <Route
           path="/perfil"
           element={<ProfilePage profile={profile} onSaved={setProfile} onSignOut={signOut} />}
         />
@@ -71,7 +86,12 @@ export default function App() {
           <span className="ball" aria-hidden="true" />
           <h1>Falta Uno</h1>
         </Link>
-        {session && profile && <ProfileBadge profile={profile} />}
+        {session && profile && (
+          <div className="header-actions">
+            <InvitationsBell count={invitationsState.invitations.length} />
+            <ProfileBadge profile={profile} />
+          </div>
+        )}
       </header>
       {content}
       <footer className="app-footer">
@@ -80,6 +100,22 @@ export default function App() {
         <Link to="/terminos">Términos</Link>
       </footer>
     </div>
+  )
+}
+
+function InvitationsBell({ count }: { count: number }) {
+  return (
+    <Link
+      to="/invitaciones"
+      className="bell"
+      aria-label={count > 0 ? `Tenés ${count} invitación${count === 1 ? '' : 'es'}` : 'Invitaciones'}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 4h16v12H5.2L4 17.2V4z" />
+        <path d="M8 9h8M8 12h5" />
+      </svg>
+      {count > 0 && <span className="bell-count">{count > 9 ? '9+' : count}</span>}
+    </Link>
   )
 }
 
