@@ -232,3 +232,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (display-mode: standalone) {
   .app-shell { padding-top: max(var(--space), env(safe-area-inset-top)); padding-bottom: max(var(--space), env(safe-area-inset-bottom)); }
 }
+
+/* Invitations */
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.bell { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--color-text); text-decoration: none; }
+.bell:hover { background: var(--color-surface); }
+.bell-count {
+  position: absolute; top: -2px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--color-danger); color: #ffffff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+}
+.invitation-from { margin: 0; }
+.invitation .match-card { border-color: var(--color-border); }

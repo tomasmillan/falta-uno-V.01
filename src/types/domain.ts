@@ -70,3 +70,22 @@ export const courtLabelOrPending = (match: Pick<Match, 'courtLabel'>) => match.c
 
 /** Club booking slots: 90-minute turns from 08:00 to 23:00. */
 export const MATCH_SLOTS = ['08:00', '09:30', '11:00', '12:30', '14:00', '15:30', '17:00', '18:30', '20:00', '21:30', '23:00']
+
+export type InvitationStatus = 'pending' | 'accepted' | 'declined'
+
+export interface Invitation {
+  id: string
+  status: InvitationStatus
+  createdAt: string
+  inviterName: string
+  match: Match
+}
+
+/** A player the user has already shared a match with. */
+export interface Teammate {
+  id: string
+  fullName: string
+  category: Category
+  preferredSide: PreferredSide
+  matchesTogether: number
+}
