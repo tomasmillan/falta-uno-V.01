@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0f6b45"/>
+  <g transform="translate(256 256)">
+    <circle r="150" fill="#e3f74a"/>
+    <clipPath id="b"><circle r="150"/></clipPath>
+    <g clip-path="url(#b)" fill="none" stroke="#0f6b45" stroke-width="16" stroke-linecap="round">
+      <circle cx="-215" cy="0" r="125"/>
+      <circle cx="215" cy="0" r="125"/>
+    </g>
+  </g>
+</svg>
